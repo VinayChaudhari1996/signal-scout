@@ -57,6 +57,26 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        chart: {
+          1: "hsl(var(--chart-1))",
+          2: "hsl(var(--chart-2))",
+          3: "hsl(var(--chart-3))",
+          4: "hsl(var(--chart-4))",
+          5: "hsl(var(--chart-5))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        danger: {
+          DEFAULT: "hsl(var(--danger))",
+          foreground: "hsl(var(--danger-foreground))",
+        },
+      },
+      fontFamily: {
+        sans: ["Inter", "ui-sans-serif", "sans-serif", "system-ui"],
+        serif: ["Adamina", "ui-serif", "serif"],
+        mono: ["Space Mono", "ui-monospace", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",
