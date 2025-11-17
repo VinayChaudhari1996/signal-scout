@@ -8,7 +8,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { TrendingUp, TrendingDown, ArrowUpDown, ArrowUp, ArrowDown, SquareArrowOutUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Signal {
@@ -29,12 +30,13 @@ interface Signal {
 
 interface SignalsTableProps {
   signals: Signal[];
+  onBacktestClick: (ticker: string) => void;
 }
 
-type SortField = 'ticker' | 'current_price' | 'entry_price' | 'risk_reward' | 'hours_since_signal';
+type SortField = 'ticker' | 'current_price' | 'entry_price' | 'risk_reward' | 'hours_since_signal' | 'price_diff';
 type SortDirection = 'asc' | 'desc' | null;
 
-export const SignalsTable = ({ signals }: SignalsTableProps) => {
+export const SignalsTable = ({ signals, onBacktestClick }: SignalsTableProps) => {
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
@@ -93,6 +95,15 @@ export const SignalsTable = ({ signals }: SignalsTableProps) => {
     return <ArrowDown className="w-3.5 h-3.5 ml-1 opacity-70" />;
   };
 
+  const getHeatmapColor = (priceChangePercent: number) => {
+    const absChange = Math.abs(priceChangePercent);
+    if (absChange < 0.5) return "bg-muted/30";
+    if (absChange < 1) return priceChangePercent > 0 ? "bg-success/10" : "bg-danger/10";
+    if (absChange < 2) return priceChangePercent > 0 ? "bg-success/20" : "bg-danger/20";
+    if (absChange < 3) return priceChangePercent > 0 ? "bg-success/30" : "bg-danger/30";
+    return priceChangePercent > 0 ? "bg-success/40" : "bg-danger/40";
+  };
+
   return (
     <div className="rounded-lg border border-border/50 overflow-hidden">
       <Table>
@@ -115,6 +126,15 @@ export const SignalsTable = ({ signals }: SignalsTableProps) => {
               <div className="flex items-center justify-end">
                 Current
                 <SortIcon field="current_price" />
+              </div>
+            </TableHead>
+            <TableHead 
+              className="font-medium text-[12px] text-center cursor-pointer select-none h-9"
+              onClick={() => handleSort('price_diff')}
+            >
+              <div className="flex items-center justify-center">
+                Price Diff
+                <SortIcon field="price_diff" />
               </div>
             </TableHead>
             <TableHead 
@@ -161,11 +181,22 @@ export const SignalsTable = ({ signals }: SignalsTableProps) => {
                 key={`${signal.ticker}-${index}`}
                 className={cn(
                   "hover:bg-muted/20 transition-colors h-12",
-                  isBuy ? "border-l-2 border-l-success" : "border-l-2 border-l-danger"
+                  isBuy ? "border-l-2 border-l-success" : "border-l-2 border-l-danger",
+                  getHeatmapColor(parseFloat(priceChangePercent))
                 )}
               >
                 <TableCell className="font-mono font-semibold text-[13px]">
-                  {signal.ticker}
+                  <div className="flex items-center gap-2">
+                    {signal.ticker}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5 opacity-50 hover:opacity-100"
+                      onClick={() => onBacktestClick(signal.ticker)}
+                    >
+                      <SquareArrowOutUpRight className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
                 </TableCell>
                 
                 <TableCell>
@@ -185,9 +216,13 @@ export const SignalsTable = ({ signals }: SignalsTableProps) => {
                   </Badge>
                 </TableCell>
 
-                <TableCell className="text-right">
-                  <div className="flex flex-col items-end gap-0.5">
-                    <span className="font-mono font-semibold text-[13px]">₹{signal.current_price.toFixed(2)}</span>
+                <TableCell className="text-right font-mono font-semibold text-[13px]">
+                  ₹{signal.current_price.toFixed(2)}
+                </TableCell>
+
+                <TableCell className="text-center">
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className="font-mono font-semibold text-[13px]">₹{Math.abs(priceChange).toFixed(2)}</span>
                     <span className={cn(
                       "text-[11px] font-mono font-medium",
                       priceChange >= 0 ? "text-success" : "text-danger"
