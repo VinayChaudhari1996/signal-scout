@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Search, Clock, Loader2, AlertCircle } from "lucide-react";
 import { SignalsTable } from "@/components/SignalsTable";
 import { StatsCard } from "@/components/StatsCard";
+import { BacktestDialog } from "@/components/BacktestDialog";
 import { toast } from "sonner";
 
 interface Signal {
@@ -60,10 +61,33 @@ const scanStocks = async (tickers: string[]): Promise<ScanResponse> => {
   return response.json();
 };
 
+const backtestStock = async (ticker: string) => {
+  const response = await fetch(`${API_URL}/backtest`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      tickers: [ticker],
+      period_days: 90,
+      interval: "60minute",
+      initial_capital: 1000000,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to backtest: ${response.statusText}`);
+  }
+
+  return response.json();
+};
+
 const Index = () => {
   const [tickers, setTickers] = useState("WIPRO, RELIANCE, HAL");
   const [activeTab, setActiveTab] = useState("all");
   const [scanData, setScanData] = useState<ScanResponse | null>(null);
+  const [backtestDialogOpen, setBacktestDialogOpen] = useState(false);
+  const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
 
   const scanMutation = useMutation({
     mutationFn: (tickerList: string[]) => scanStocks(tickerList),
@@ -76,6 +100,23 @@ const Index = () => {
       console.error("Scan error:", error);
     },
   });
+
+  const backtestMutation = useMutation({
+    mutationFn: (ticker: string) => backtestStock(ticker),
+    onSuccess: () => {
+      toast.success("Backtest completed!");
+    },
+    onError: (error: Error) => {
+      toast.error(`Backtest failed: ${error.message}`);
+      console.error("Backtest error:", error);
+    },
+  });
+
+  const handleBacktestClick = (ticker: string) => {
+    setSelectedTicker(ticker);
+    setBacktestDialogOpen(true);
+    backtestMutation.mutate(ticker);
+  };
 
   const handleScan = () => {
     const tickerList = tickers
@@ -230,7 +271,10 @@ const Index = () => {
                 </TabsList>
 
                 <TabsContent value={activeTab}>
-                  <SignalsTable signals={filteredSignals} />
+                  <SignalsTable 
+                    signals={filteredSignals}
+                    onBacktestClick={handleBacktestClick}
+                  />
                 </TabsContent>
               </Tabs>
             </div>
@@ -252,6 +296,15 @@ const Index = () => {
           </div>
         )}
       </main>
+
+      {/* Backtest Dialog */}
+      <BacktestDialog
+        open={backtestDialogOpen}
+        onOpenChange={setBacktestDialogOpen}
+        ticker={selectedTicker}
+        data={backtestMutation.data}
+        isLoading={backtestMutation.isPending}
+      />
     </div>
   );
 };
