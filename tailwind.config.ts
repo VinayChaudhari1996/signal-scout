@@ -74,9 +74,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "sans-serif", "system-ui"],
-        serif: ["Adamina", "ui-serif", "serif"],
-        mono: ["Space Mono", "ui-monospace", "monospace"],
+        sans: ["-apple-system", "BlinkMacSystemFont", "Inter", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+        mono: ["SF Mono", "Monaco", "Cascadia Code", "Roboto Mono", "Courier New", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",

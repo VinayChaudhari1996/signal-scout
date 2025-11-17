@@ -104,73 +104,56 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold font-serif text-foreground">
-                Stock Screener
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Real-time trading signals & market insights
-              </p>
-            </div>
+      <header className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-[17px] font-semibold tracking-tight text-foreground">
+              Stock Screener
+            </h1>
             {scanData && (
-              <Badge variant="outline" className="text-xs font-mono">
-                <Clock className="w-3 h-3 mr-1" />
+              <span className="text-[13px] text-muted-foreground">
                 {scanData.scan_time}
-              </Badge>
+              </span>
             )}
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-6 py-6">
         {/* Search Section */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-xl">Scan Stocks</CardTitle>
-            <CardDescription>
-              Enter stock tickers to scan for trading signals
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-3">
-              <Input
-                placeholder="e.g., WIPRO, RELIANCE, HAL"
-                value={tickers}
-                onChange={(e) => setTickers(e.target.value)}
-                className="font-mono"
-                disabled={scanMutation.isPending}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleScan();
-                  }
-                }}
-              />
-              <Button
-                className="min-w-[120px]"
-                onClick={handleScan}
-                disabled={scanMutation.isPending}
-              >
-                {scanMutation.isPending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Scanning...
-                  </>
-                ) : (
-                  <>
-                    <Search className="w-4 h-4 mr-2" />
-                    Scan
-                  </>
-                )}
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Separate multiple tickers with commas
-            </p>
-          </CardContent>
-        </Card>
+        <div className="mb-6 bg-card rounded-xl border border-border/50 p-4">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Enter tickers (e.g., WIPRO, RELIANCE, HAL)"
+              value={tickers}
+              onChange={(e) => setTickers(e.target.value)}
+              className="font-mono text-[13px] h-9 border-border/50"
+              disabled={scanMutation.isPending}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleScan();
+                }
+              }}
+            />
+            <Button
+              className="h-9 px-4 text-[13px] font-medium"
+              onClick={handleScan}
+              disabled={scanMutation.isPending}
+            >
+              {scanMutation.isPending ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  Scanning
+                </>
+              ) : (
+                <>
+                  <Search className="w-3.5 h-3.5 mr-1.5" />
+                  Scan
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
 
         {/* Error State */}
         {scanMutation.isError && (
@@ -191,7 +174,7 @@ const Index = () => {
 
         {/* Stats Grid */}
         {scanData && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
             <StatsCard
               title="Total Scanned"
               value={scanData.total_stocks_scanned}
@@ -219,34 +202,29 @@ const Index = () => {
 
         {/* Signals Section */}
         {scanData && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl">Trading Signals</CardTitle>
-              <CardDescription>
-                {scanData.total_signals_found} signals found from{" "}
-                {scanData.data_source}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
+            <div className="px-4 py-3 border-b border-border/50">
+              <h2 className="text-[15px] font-semibold text-foreground">
+                Trading Signals
+              </h2>
+              <p className="text-[13px] text-muted-foreground mt-0.5">
+                {scanData.total_signals_found} signals from {scanData.data_source}
+              </p>
+            </div>
+            <div className="p-4">
               <Tabs
                 value={activeTab}
                 onValueChange={setActiveTab}
                 className="w-full"
               >
-                <TabsList className="grid w-full md:w-[400px] grid-cols-3 mb-6">
-                  <TabsTrigger value="all">
-                    All Signals ({scanData.signals.length})
+                <TabsList className="h-8 bg-muted/50 p-0.5 mb-4">
+                  <TabsTrigger value="all" className="text-[13px] h-7 px-3 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                    All ({scanData.signals.length})
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="buy"
-                    className="data-[state=active]:text-success"
-                  >
+                  <TabsTrigger value="buy" className="text-[13px] h-7 px-3 data-[state=active]:bg-background data-[state=active]:shadow-sm">
                     Buy ({buySignals.length})
                   </TabsTrigger>
-                  <TabsTrigger
-                    value="sell"
-                    className="data-[state=active]:text-danger"
-                  >
+                  <TabsTrigger value="sell" className="text-[13px] h-7 px-3 data-[state=active]:bg-background data-[state=active]:shadow-sm">
                     Sell ({sellSignals.length})
                   </TabsTrigger>
                 </TabsList>
@@ -255,25 +233,23 @@ const Index = () => {
                   <SignalsTable signals={filteredSignals} />
                 </TabsContent>
               </Tabs>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         {/* Empty State */}
         {!scanData && !scanMutation.isPending && (
-          <Card>
-            <CardContent className="pt-12 pb-12">
-              <div className="text-center">
-                <Search className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">
-                  Ready to scan stocks
-                </h3>
-                <p className="text-muted-foreground">
-                  Enter stock tickers above and click Scan to get started
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="bg-card rounded-xl border border-border/50 p-12">
+            <div className="text-center">
+              <Search className="w-12 h-12 mx-auto text-muted-foreground/40 mb-4" />
+              <h3 className="text-[15px] font-semibold mb-1">
+                Ready to scan stocks
+              </h3>
+              <p className="text-[13px] text-muted-foreground">
+                Enter stock tickers above and click Scan to get started
+              </p>
+            </div>
+          </div>
         )}
       </main>
     </div>
