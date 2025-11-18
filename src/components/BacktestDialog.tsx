@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 interface Trade {
@@ -92,8 +93,30 @@ export const BacktestDialog = ({
         </DialogHeader>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+          <div className="space-y-6 pr-4">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-muted/30 rounded-lg p-4"><div className="space-y-2"><Skeleton className="h-3 w-24" /><Skeleton className="h-6 w-20" /></div></div>
+              <div className="bg-muted/30 rounded-lg p-4"><div className="space-y-2"><Skeleton className="h-3 w-24" /><Skeleton className="h-6 w-20" /></div></div>
+              <div className="bg-muted/30 rounded-lg p-4"><div className="space-y-2"><Skeleton className="h-3 w-24" /><Skeleton className="h-6 w-20" /></div></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-muted/20 rounded-lg p-4"><Skeleton className="h-[220px] w-full rounded-md" /></div>
+              <div className="bg-muted/20 rounded-lg p-4"><Skeleton className="h-[220px] w-full rounded-md" /></div>
+            </div>
+            <div>
+              <div className="border border-border/50 rounded-lg overflow-hidden">
+                <div className="p-3 border-b border-border/50 bg-muted/30">
+                  <Skeleton className="h-4 w-40" />
+                </div>
+                <div className="p-3 space-y-3">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
+              </div>
+            </div>
           </div>
         ) : result ? (
           <ScrollArea className="h-[calc(85vh-120px)]">
@@ -114,10 +137,10 @@ export const BacktestDialog = ({
                   </div>
                   <div
                     className={`text-[20px] font-semibold font-mono ${
-                      result.summary.profit >= 0 ? "text-success" : "text-danger"
+                      typeof result.summary?.profit === 'number' && result.summary.profit >= 0 ? "text-success" : "text-danger"
                     }`}
                   >
-                    ₹{result.summary.profit.toFixed(2)}
+                    {typeof result.summary?.profit === 'number' ? `₹${result.summary.profit.toFixed(2)}` : "—"}
                   </div>
                 </div>
                 <div className="bg-muted/30 rounded-lg p-4">
@@ -155,7 +178,7 @@ export const BacktestDialog = ({
                             borderRadius: "8px",
                             fontSize: "12px"
                           }}
-                          formatter={(value: any) => `₹${value.toFixed(2)}`}
+                          formatter={(value: any) => (typeof value === 'number' ? `₹${value.toFixed(2)}` : `${value}`)}
                         />
                         <Line 
                           type="monotone" 
@@ -246,7 +269,7 @@ export const BacktestDialog = ({
                                 })}
                               </td>
                               <td className="p-3 text-right font-mono">
-                                ₹{trade.buy_price.toFixed(2)}
+                                {typeof trade.buy_price === 'number' ? `₹${trade.buy_price.toFixed(2)}` : "—"}
                               </td>
                               <td className="p-3 font-mono text-[11px]">
                                 {new Date(trade.sell_time).toLocaleString("en-IN", {
@@ -255,17 +278,17 @@ export const BacktestDialog = ({
                                 })}
                               </td>
                               <td className="p-3 text-right font-mono">
-                                ₹{trade.sell_price.toFixed(2)}
+                                {typeof trade.sell_price === 'number' ? `₹${trade.sell_price.toFixed(2)}` : "—"}
                               </td>
                               <td className="p-3 text-center font-mono">
                                 {trade.quantity}
                               </td>
                               <td
                                 className={`p-3 text-right font-mono font-semibold ${
-                                  trade.pnl >= 0 ? "text-success" : "text-danger"
+                                  typeof trade.pnl === 'number' && trade.pnl >= 0 ? "text-success" : "text-danger"
                                 }`}
                               >
-                                {trade.pnl >= 0 ? "+" : ""}₹{trade.pnl.toFixed(2)}
+                                {typeof trade.pnl === 'number' ? `${trade.pnl >= 0 ? "+" : ""}₹${trade.pnl.toFixed(2)}` : "—"}
                               </td>
                             </tr>
                           ))}
