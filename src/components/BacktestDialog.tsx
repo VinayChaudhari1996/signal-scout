@@ -60,19 +60,19 @@ export const BacktestDialog = ({
 }: BacktestDialogProps) => {
   const result = data?.results?.[0];
 
-  // Calculate cumulative P&L data
-  const cumulativePnLData = result?.trades.reduce((acc, trade, idx) => {
+  // Only calculate data if result and trades exist
+  const cumulativePnLData = result?.trades ? result.trades.reduce((acc, trade, idx) => {
     const prevTotal = idx > 0 ? acc[idx - 1].cumulative : 0;
     acc.push({
       trade: `T${idx + 1}`,
       cumulative: prevTotal + trade.pnl,
     });
     return acc;
-  }, [] as Array<{ trade: string; cumulative: number }>) || [];
+  }, [] as Array<{ trade: string; cumulative: number }>) : [];
 
-  // Calculate win/loss ratio data
-  const winningTrades = result?.trades.filter(t => t.pnl > 0).length || 0;
-  const losingTrades = result?.trades.filter(t => t.pnl <= 0).length || 0;
+  // Calculate win/loss ratio data only if trades exist
+  const winningTrades = result?.trades?.filter(t => t.pnl > 0).length || 0;
+  const losingTrades = result?.trades?.filter(t => t.pnl <= 0).length || 0;
   
   const winLossData = [
     { name: "Winning", value: winningTrades, color: "rgb(34, 197, 94)" },
@@ -125,13 +125,15 @@ export const BacktestDialog = ({
                     Max Drawdown
                   </div>
                   <div className="text-[20px] font-semibold font-mono text-danger">
-                    {result.advanced_kpis["max_drawdown_%"]?.toFixed(2)}%
+                    {result.advanced_kpis?.["max_drawdown_%"] != null 
+                      ? `${result.advanced_kpis["max_drawdown_%"].toFixed(2)}%`
+                      : "N/A"}
                   </div>
                 </div>
               </div>
 
               {/* Charts Section */}
-              {result.trades && result.trades.length > 0 && (
+              {result?.trades && result.trades.length > 0 && cumulativePnLData.length > 0 && (
                 <div className="grid grid-cols-2 gap-4">
                   {/* Cumulative P&L Chart */}
                   <div className="bg-muted/20 rounded-lg p-4">
